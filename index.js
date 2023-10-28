@@ -25,7 +25,9 @@ async function run() {
     await client.connect();
 
     const serviceCollection = client.db("geniusCar").collection("services");
+    const bookingCollection = client.db("geniusCar").collection("bookings");
 
+    // services api
     app.get("/services", async (req, res) => {
       const result = await serviceCollection.find().toArray();
       res.send(result);
@@ -36,10 +38,27 @@ async function run() {
       const query = { _id: new ObjectId(id) };
 
       const options = {
-        projection: { title: 1, price: 1, service_id: 1 },
+        projection: { img: 1, title: 1, price: 1, service_id: 1, date: 1 },
       };
 
       const result = await serviceCollection.findOne(query, options);
+      res.send(result);
+    });
+
+    //booking api
+
+    app.get("/booking", async (req, res) => {
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query.email };
+      }
+      const result = await bookingCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/booking", async (req, res) => {
+      const booking = req.body;
+      const result = await bookingCollection.insertOne(booking);
       res.send(result);
     });
 
